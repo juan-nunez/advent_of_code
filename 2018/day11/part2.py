@@ -9,8 +9,6 @@ def grid_power_level(serial_num):
 
 def form_nxn(grid):
     sum_grid = [[0 for x in range(GRID_SIZE)] for y in range(GRID_SIZE)]
-    size_grid = [[0 for x in range(GRID_SIZE)] for y in range(GRID_SIZE)]
-    max_grid = [[0 for x in range(GRID_SIZE)] for y in range(GRID_SIZE)]
 
     #create partial sum array
     for i in range(0,GRID_SIZE):
@@ -25,29 +23,23 @@ def form_nxn(grid):
             summation += sum_grid[i][j]
             sum_grid[i][j] = summation
 
-
+    x = 0
+    y = 0
+    max_sum = 0
+    max_size = 0
     for i in range(1, GRID_SIZE):
         for j in range(1, GRID_SIZE):
             for k in range(1, GRID_SIZE):
                 if j+k > GRID_SIZE or i+k > GRID_SIZE:
                     continue
                 summation = sum_grid[j+k-1][i+k-1] + sum_grid[j-1][i-1] - sum_grid[j+k-1][i-1] - sum_grid[j-1][i+k-1]
-                if summation > max_grid[j][i]:
-                    max_grid[j][i] = summation
-                    size_grid[j][i] = k
+                if summation > max_sum:
+                    max_sum = summation
+                    max_size = k
+                    x = j
+                    y = i
     
-    summation = 0
-    x = 0
-    y = 0
-    for i in range(1,GRID_SIZE):
-        for j in range(1, GRID_SIZE):
-            if max_grid[j][i] > summation:
-                print(summation)
-                x = j
-                y = i
-                summation = max_grid[j][i]
-
-    return [x, y, size_grid[x][y]]
+    return [x, y, max_size]
 
 #helper func for debugging                
 def print_grid(grid):
