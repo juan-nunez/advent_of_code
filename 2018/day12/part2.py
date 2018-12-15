@@ -1,8 +1,11 @@
 import re
 
-def spread(initial_state, gens, rules, output):
+def get_repetition(initial_state, gens, rules, output):
     zero = 0
     state = "." * zero + initial_state + "." * zero
+    prev = 0
+    current = 0
+    diffs = []
     for x in range(0,gens):
         mods = []
         if state[0:5] != ".....":
@@ -11,7 +14,6 @@ def spread(initial_state, gens, rules, output):
         if state[:-5] !=  ".....":
             state = state + "....."
         for i in range(2, len(state)-2):
-            print(state)
             current = state[i-2:i+3]
             out = "."
             for j in range(0, len(rules)):
@@ -24,11 +26,15 @@ def spread(initial_state, gens, rules, output):
             idx, out = mod
             state = state[:idx] + out + state[idx+1:]
 
-    potIndices = []
-    for i, pot in enumerate(state):
-        if state[i] == "#":
-            potIndices.append(i-zero)
-    return sum(potIndices)
+        potIndices = []
+        for i, pot in enumerate(state):
+            if state[i] == "#":
+                potIndices.append(i-zero)
+        current = sum(potIndices)
+        # used this function to find out the index where the pattern starts to repeat
+        #print(x+1, sum(potIndices), current - prev)
+        prev = current
+    return 0
 
 
 def main():
@@ -41,8 +47,9 @@ def main():
         r, o = inp[i].replace(" ", "").split("=>")
         rules.append(r.strip())
         output.append(o.strip())
-    idx_sum = spread(initial_state, 20, rules, output)
-    print(idx_sum)
+    idx_sum = get_repetition(initial_state, 200, rules, output)
+
+    print(6739 + 42 * (50000000000 - 159))
 
 
 
