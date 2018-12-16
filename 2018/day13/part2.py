@@ -116,6 +116,7 @@ def run_simulation(grid, carts):
     compass = Compass()
     has_crashed = False
     while not has_crashed:
+        #print_grid(grid, carts)
         used_carts = []
         for i, row in enumerate(grid):
             for j, track in enumerate(row):
@@ -124,12 +125,13 @@ def run_simulation(grid, carts):
                     cart = carts[cart_index]
                     used_carts.append(cart)
                     next_direction, delta = compass.turn(cart.direction, Turn.STRAIGHT)
-                    #print(cart.direction, next_direction, delta)
                     next_i = cart.x + delta[0]
                     next_j = cart.y + delta[1]
-                    #print(cart_index, cart.x, cart.y, cart.direction, next_i, next_j, sep = ",", end="")
                     if find_cart(carts, next_i, next_j) != -1:
-                        return next_j, next_i
+                        carts.remove(cart)
+                        carts.remove(carts[find_cart(carts, next_i, next_j)])
+                        print("CAR CRASH", next_i, next_j)
+                        print("CARTS LEFT", len(carts))
                     elif is_intersection(grid[next_i][next_j]):
                         cart.x = next_i
                         cart.y = next_j
@@ -145,8 +147,8 @@ def run_simulation(grid, carts):
                     else:
                         cart.x = next_i
                         cart.y = next_j
-                    #print(",", next_direction)
-        #print_grid(grid, carts)
+        if len(carts) == 1:
+           return carts[0].y, carts[0].x
     return 0,0
 
 def print_grid(grid, carts):
@@ -159,7 +161,6 @@ def print_grid(grid, carts):
     print("DONE")
 
 def main():
- 
     f = open("input.txt", "r")
     lines = f.readlines()
     grid = []
