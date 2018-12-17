@@ -1,5 +1,5 @@
 import re
-
+##NOT CORRECT YET
 class Machine:
     def call_all(self, inp, out, current):
         outputs = []
@@ -103,24 +103,86 @@ class Machine:
             output[out] = 0
         return output
 
+##MANUAL LABOR
+nstruction_mapping = {
+    0: "gtrr",
+    1: "mulr",
+    2: "eqri",
+    3: "addr",
+    4: "eqrr",
+    5: "addi",
+    6: "gtri",
+    7: "bori",
+    8: "borr",
+    9: "muli",
+    10: "gtir",
+    11: "setr",
+    12: "eqir",
+    13: "bani",
+    14: "seti",
+    15: "banr"
+}
+
+machine_instructions = [
+        "addr",
+        "addi",
+        "mulr",
+        "muli",
+        "banr",
+        "bani",
+        "borr",
+        "bori",
+        "setr",
+        "seti",
+        "gtir",
+        "gtri",
+        "gtrr",
+        "eqir",
+        "eqri",
+        "eqrr",
+]
+
+def run_program(codes, instruction_mapping):
+    machine = Machine()
+    registers = [0, 0, 0, 0]
+    for code in codes:
+        instr = code[0]
+        inp = code[1:3]
+        out = code[3]
+        func = getattr(machine, machine_instructions[instruction_mapping[instr]])
+        registers = func(inp, out, registers)
+    print(registers)
+
+def resolve_instruction_mapping(opcodes):
+    mapping = {}
+    while len(mapping.keys()) != 16:
+        for key in opcodes.keys():
+            if len(opcodes[key]) == 1:
+                actual = opcodes[key][0]
+                mapping[key] = actual
+                for key in opcodes.keys():
+                    if actual in opcodes[key]:
+                        opcodes[key].remove(actual)
+    print(mapping)
+    return mapping
+
 def run(before, instructions, after):
     machine = Machine()
-    total_count_of_gte_3 = 0
+    opcodes = {}
     for i, regs in enumerate(before):
         after_ops = machine.call_all(instructions[i][1:3], instructions[i][3], regs)
-        cnt = 0
-        for after_op in after_ops:
+        for j, after_op in enumerate(after_ops):
             if after_op == after[i]:
-                cnt += 1
-        if cnt >= 3:
-            total_count_of_gte_3 += 1
-    print(total_count_of_gte_3)
-
+                instr = opcodes.get(j, [])
+                if instructions[i][0] not in instr:
+                    instr.append(instructions[i][0])
+                opcodes[j] = instr
+    return opcodes
 
 
 def main():
-    f = open("lines.txt", "r")
-    lines = f.readlines()
+    lines = open("lines.txt", "r").readlines()
+    program = open("program.txt", "r").readlines()
     regex = re.compile("[0-9]+")
     k = 0
     before = []
@@ -131,7 +193,14 @@ def main():
         instructions.append([int(d) for d in regex.findall(lines[k+1])])
         after.append([int(d) for d in regex.findall(lines[k+2])])
         k += 4
-    run(before, instructions, after)
+    opcodes = run(before, instructions, after)
+    codes = []
+    k = 0
+    while k < len(program):
+        codes.append([int(d) for d in regex.findall(program[k])])
+        k += 1
+    instruction_mapping = resolve_instruction_mapping(opcodes)
+    run_program(codes, instruction_mapping)
 
 if __name__ == "__main__":
     main()
